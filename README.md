@@ -4,7 +4,7 @@ An Unpacker/Repacker for <a href="https://www.interactionstudios.com/games.php">
 <img src="CIExtract.png" width=25% height=25%>
 
 * Supports **CI2/CI3/CI4/CI5**
-* **CI3, CI4 and CI5 have not been tested**
+* **CI3, CI4 and CI5 have not been extensively tested**
 
 # Notes
 
