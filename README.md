@@ -3,7 +3,7 @@
 An Unpacker/Repacker for <a href="https://www.interactionstudios.com/games.php">Chicken Invaders</a> archives<br /><br />
 <img src="CIExtract.png" width=25% height=25%>
 
-* Supports **CI1/CI2/CI3/CI4**
+* Supports **CI2/CI3/CI4/CI5**
 * **CI3, CI4 and CI5 have not been tested**
 
 # Notes
