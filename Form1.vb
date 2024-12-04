@@ -4,6 +4,39 @@ Imports System.Text
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 Public Class Form1
+
+    Function CleanPath(filePath As String) As String
+        filePath = filePath.Replace("/", Path.DirectorySeparatorChar).Replace("\", Path.DirectorySeparatorChar)
+        Return String.Concat(filePath.Split(Path.GetInvalidPathChars())).Trim()
+    End Function
+
+    Sub ApplyXor(fs As FileStream, offset As Long, xorKey As Byte, length As Integer)
+        Dim originalPosition As Long = fs.Position
+        fs.Seek(offset, SeekOrigin.Begin)
+        Dim buffer(length - 1) As Byte
+        fs.Read(buffer, 0, length)
+
+        For i As Integer = 0 To buffer.Length - 1
+            buffer(i) = buffer(i) Xor xorKey
+        Next
+
+        fs.Seek(offset, SeekOrigin.Begin)
+        fs.Write(buffer, 0, buffer.Length)
+        fs.Seek(originalPosition, SeekOrigin.Begin)
+    End Sub
+
+    Sub ExtractFile(outputPath As String, fs As FileStream, offset As Integer, compressedSize As Integer, Optional uncompressedSize As Integer = -1)
+        Dim originalPosition As Long = fs.Position
+        fs.Seek(offset, SeekOrigin.Begin)
+
+        Dim buffer(compressedSize - 1) As Byte
+        fs.Read(buffer, 0, compressedSize)
+
+        File.WriteAllBytes(outputPath, buffer)
+
+        fs.Seek(originalPosition, SeekOrigin.Begin)
+    End Sub
+
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         If UnpackModeCombo.SelectedIndex = 0 Then
             Dim inputFilePath As String = OpenArchiveDialog.FileName.ToString
@@ -73,7 +106,6 @@ Public Class Form1
                             ExtractFile(fullFilePath, fs, fileOffset, compressedSize, uncompressedSize)
                         End If
 
-
                     Next
                 End Using
             End Using
@@ -90,41 +122,8 @@ Public Class Form1
         ArchivePathTextBox.SelectionLength = 0
         FolderPathTextBox.SelectionStart = FolderPathTextBox.Text.Length
         FolderPathTextBox.SelectionLength = 0
-
     End Sub
-
-    Function CleanPath(filePath As String) As String
-        filePath = filePath.Replace("/", Path.DirectorySeparatorChar).Replace("\", Path.DirectorySeparatorChar)
-        Return String.Concat(filePath.Split(Path.GetInvalidPathChars())).Trim()
-    End Function
-
-    Sub ApplyXor(fs As FileStream, offset As Long, xorKey As Byte, length As Integer)
-        Dim originalPosition As Long = fs.Position
-        fs.Seek(offset, SeekOrigin.Begin)
-        Dim buffer(length - 1) As Byte
-        fs.Read(buffer, 0, length)
-
-        For i As Integer = 0 To buffer.Length - 1
-            buffer(i) = buffer(i) Xor xorKey
-        Next
-
-        fs.Seek(offset, SeekOrigin.Begin)
-        fs.Write(buffer, 0, buffer.Length)
-        fs.Seek(originalPosition, SeekOrigin.Begin)
-    End Sub
-
-    Sub ExtractFile(outputPath As String, fs As FileStream, offset As Integer, compressedSize As Integer, Optional uncompressedSize As Integer = -1)
-        Dim originalPosition As Long = fs.Position
-        fs.Seek(offset, SeekOrigin.Begin)
-
-        Dim buffer(compressedSize - 1) As Byte
-        fs.Read(buffer, 0, compressedSize)
-
-        File.WriteAllBytes(outputPath, buffer)
-
-        fs.Seek(originalPosition, SeekOrigin.Begin)
-    End Sub
-
+    
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         If UnpackModeCombo.SelectedIndex = 0 Then
             Dim inputFilePath As String = OpenArchiveDialog.FileName.ToString
