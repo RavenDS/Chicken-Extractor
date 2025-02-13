@@ -2194,3 +2194,4 @@ b6c78715|shaders/compiled/pixel.gradientramp.a.linear.cso.ps_4_0.release
 963ad7d4|shaders/compiled/pixel.gradientramp.a.linear.cso.ps_4_0_level_9_1.release
 7f33b9d6|shaders/compiled/pixel.gradientramp.a.linear.cso.ps_4_0_level_9_3.release
 3c243c56|shaders/compiled/pixel.gradientramp.a.linear.cso.ps_5_0.release
+8b5749e4|gfx/font/NotoSansArabic_ExtraCondensed-SemiBold.ttf
