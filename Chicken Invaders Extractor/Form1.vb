@@ -20,7 +20,6 @@ Public Class Form1
     End Sub
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-
         If UnpackModeCombo.SelectedIndex = 0 Then
 
             UnpackCI()
@@ -49,7 +48,6 @@ Public Class Form1
     End Sub
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-
         If UnpackModeCombo.SelectedIndex = 0 Then
 
             RepackCI()
@@ -72,8 +70,8 @@ Public Class Form1
             Else
                 MessageBox.Show("No repack mode is selected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
-
     End Sub
+                                    
     Private Sub BrowseArchiveBtn_Click(sender As Object, e As EventArgs) Handles BrowseArchiveBtn.Click
         If OpenArchiveDialog.ShowDialog = DialogResult.OK Then
 
@@ -89,6 +87,7 @@ Public Class Form1
             FolderPathTextBox.SelectionLength = 0
         End If
     End Sub
+                                    
     Private Sub SaveFolderBtn_Click(sender As Object, e As EventArgs) Handles SaveFolderBtn.Click
         If SaveFolderDialog.ShowDialog = DialogResult.OK Then
             FolderPathTextBox.Text = SaveFolderDialog.SelectedPath.ToString
@@ -97,6 +96,7 @@ Public Class Form1
             FolderPathTextBox.SelectionLength = 0
         End If
     End Sub
+                                    
     Private Sub UpdTableBtn_Click(sender As Object, e As EventArgs) Handles UpdTableBtn.Click
         If MsgBox("This will update the CIU table from the internet." & vbCrLf & vbCrLf & "Continue ?", MsgBoxStyle.YesNo, "Update table") = MsgBoxResult.No Then
             Exit Sub
@@ -135,6 +135,7 @@ Public Class Form1
     Private Sub FolderPathTextBox_TextChanged(sender As Object, e As EventArgs) Handles FolderPathTextBox.TextChanged
         SaveFolderDialog.SelectedPath = FolderPathTextBox.Text.ToString
     End Sub
+                                        
     Private Sub UnpackModeCombo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles UnpackModeCombo.SelectedIndexChanged
         If UnpackModeCombo.SelectedIndex = 0 Then
             TGACheckBox.Enabled = False
@@ -147,8 +148,8 @@ Public Class Form1
         Dim url As String = "https://github.com/RavenDS/"
         Process.Start(New ProcessStartInfo(url) With {.UseShellExecute = True})
     End Sub
+                                            
     Sub UnpackCI()
-
         Dim inputFilePath As String = OpenArchiveDialog.FileName.ToString
         Dim outputFolderPath As String = SaveFolderDialog.SelectedPath.ToString
 
@@ -237,10 +238,9 @@ Public Class Form1
             MsgBox("An error occured: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "Error")
             Exit Sub
         End Try
-
     End Sub
+                                                        
     Sub RepackCI()
-
         Dim inputFilePath As String = OpenArchiveDialog.FileName.ToString
         Dim outputFolderPath As String = SaveFolderDialog.SelectedPath.ToString
 
@@ -255,7 +255,6 @@ Public Class Form1
         End If
 
         Try
-
             If File.Exists(inputFilePath) Then
                 For i = 0 To 999
                     If Not File.Exists(inputFilePath & ".CIExtractBackup" & i) Then
@@ -359,17 +358,16 @@ Public Class Form1
                     End Using
                 End Using
             End Using
+                                                            
             Me.Cursor = Cursors.Default
             MessageBox.Show("Repacking complete!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
             MsgBox("An error occured: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "Error")
             Exit Sub
         End Try
-
     End Sub
 
     Sub UnpackCIU()
-
         'based on work by Luigi Auriemma https://aluigi.altervista.org/bms/chicken_invaders_universe.bms
 
         UnpackSuccessCIU = False
@@ -499,11 +497,9 @@ Public Class Form1
             MsgBox("An error occured: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "Error")
             Exit Sub
         End Try
-
     End Sub
 
     Function MakeOffsetTableCIU(fileName As String, reader As BinaryReader, tablepath As String)
-
         ' read OFFSET, compressed size, & actual size
         Dim OFFSET As Integer = reader.ReadInt32()
         Dim ZSIZE As Integer = reader.ReadInt32()
@@ -518,11 +514,9 @@ Public Class Form1
                 writer.WriteLine(fileName & "," & OFFSET & "," & ZSIZE & "," & SIZE)
             End If
         End Using
-
     End Function
 
     Sub RepackCIU()
-
         RepackSuccessCIU = False
 
         Dim tableFilePath As String = "offsetTable.txt"
@@ -542,7 +536,6 @@ Public Class Form1
         End If
 
         Try
-
             If File.Exists(inputFilePath) Then
                 For i = 0 To 999
                     If Not File.Exists(inputFilePath & ".CIExtractBackup" & i) Then
@@ -638,19 +631,16 @@ Public Class Form1
                     End If
                 Next
             End Using
+                                                                
             NameCIU()
             RepackSuccessCIU = True
         Catch ex As Exception
             RepackSuccessCIU = False
             MsgBox("An error occured: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "Error")
         End Try
-
     End Sub
 
-
-
     Private Sub NameCIU()
-
         Dim sourceFolder As String = SaveFolderDialog.SelectedPath.ToString
 
         Dim mappingFilePath As String = "CIUTable.txt"
@@ -690,11 +680,9 @@ Public Class Form1
                 Console.WriteLine($"No corresponding file for'{fileName}'.")
             End If
         Next
-
     End Sub
 
     Private Sub DeNameCIU()
-
         Dim sourceFolder As String = SaveFolderDialog.SelectedPath.ToString
 
         Dim mappingFilePath As String = "CIUTable.txt"
@@ -727,15 +715,11 @@ Public Class Form1
         Next
 
         For Each subDir As String In Directory.GetDirectories(sourceFolder)
-
             Directory.Delete(subDir, True)
-
         Next
-
     End Sub
 
     Private Sub ProcessTGAFiles()
-
         If SaveFolderDialog.SelectedPath.ToString = "" Then
             Exit Sub
         ElseIf Not Directory.Exists(SaveFolderDialog.SelectedPath.ToString) Then
@@ -767,11 +751,9 @@ Public Class Form1
                 processTGAsuccess = False
             End If
         End Try
-
     End Sub
 
     Sub ProcessTGA(filePath As String)
-
         'based on work by Luigi Auriemma https://aluigi.altervista.org/bms/chicken_invaders_tga.bms 
 
         Dim inputFileName As String = Path.GetFileNameWithoutExtension(filePath)
@@ -895,13 +877,12 @@ Public Class Form1
                    "Aborting.", MsgBoxStyle.Critical, "Error")
             Exit Sub
         End Try
-
     End Sub
 
     Private Function FlipAndSwapImage(imageData(,) As Byte, width As Integer, height As Integer, depth As Integer) As Byte(,)
-
         Dim bytesPerPixel As Integer = depth \ 8
         Dim flippedImage(height - 1, width * bytesPerPixel - 1) As Byte
+                
         Try
             ' flip image vertical
             For y = 0 To height - 1
@@ -945,6 +926,7 @@ Public Class Form1
             Return hash1.SequenceEqual(hash2)
         End Using
     End Function
+    
     Private Function ComputeFileHash(filePath As String, hashAlgorithm As HashAlgorithm) As Byte()
         Using stream As FileStream = File.OpenRead(filePath)
             Return hashAlgorithm.ComputeHash(stream)
