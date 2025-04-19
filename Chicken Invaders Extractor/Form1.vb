@@ -61,14 +61,16 @@ Public Class Form1
                 Exit Sub
             End If
 
+            If TGACheckBox.Checked = True Then ProcessTGAFiles()
+
             RepackCIU()
 
-            If TGACheckBox.Checked = True AndAlso RepackSuccessCIU = True Then ProcessTGAFiles()
+            If TGACheckBox.Checked = True Then ProcessTGAFiles()
 
             If RepackSuccessCIU = True Then MsgBox("Data repacked succesfully", MsgBoxStyle.Information, "Success")
 
-        Else
-            MessageBox.Show("No repack mode is selected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                MessageBox.Show("No repack mode is selected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
 
     End Sub
@@ -645,6 +647,8 @@ Public Class Form1
 
     End Sub
 
+
+
     Private Sub NameCIU()
 
         Dim sourceFolder As String = SaveFolderDialog.SelectedPath.ToString
@@ -991,4 +995,7 @@ Public Class Form1
         End Try
     End Sub
 
+    Private Sub TGACheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles TGACheckBox.CheckedChanged
+
+    End Sub
 End Class
