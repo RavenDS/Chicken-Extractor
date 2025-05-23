@@ -210,7 +210,7 @@ Partial Class Form1
         MaximizeBox = False
         Name = "Form1"
         StartPosition = FormStartPosition.CenterScreen
-        Text = "CI Extractor 1.3"
+        Text = "CI Extractor 1.4"
         ResumeLayout(False)
         PerformLayout()
     End Sub

@@ -1,6 +1,5 @@
-﻿Imports System.CodeDom.Compiler
+﻿
 Imports System.IO
-Imports System.IO.Compression
 Imports System.Net
 Imports System.Security.Cryptography
 Imports System.Text
@@ -21,22 +20,18 @@ Public Class Form1
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
         If UnpackModeCombo.SelectedIndex = 0 Then
-
             UnpackCI()
-
         ElseIf UnpackModeCombo.SelectedIndex = 1 Then
-
             If Not File.Exists("CIUTable.txt") Then
                 MsgBox("CIU Table not found!" & vbCrLf & vbCrLf & "Please restart the tool, or update table from internet.", MsgBoxStyle.Critical, "Error!")
                 Exit Sub
             End If
 
-            UnpackCIU()
+            UnpackCIU(OpenArchiveDialog.FileName.ToString, SaveFolderDialog.SelectedPath.ToString)
 
-            If TGACheckBox.Checked = True And UnpackSuccessCIU = True Then ProcessTGAFiles()
+            If TGACheckBox.Checked = True And UnpackSuccessCIU = True Then ProcessTGAFiles(SaveFolderDialog.SelectedPath.ToString)
 
             If UnpackSuccessCIU = True Then MsgBox("Data succesfully unpacked !", MsgBoxStyle.Information, "Done")
-
         Else
             MessageBox.Show("No unpack mode is selected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
@@ -49,29 +44,25 @@ Public Class Form1
 
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
         If UnpackModeCombo.SelectedIndex = 0 Then
-
             RepackCI()
-
         ElseIf UnpackModeCombo.SelectedIndex = 1 Then
-
             If Not File.Exists("CIUTable.txt") Then
                 MsgBox("CIU Table not found!" & vbCrLf & vbCrLf & "Please restart the tool, or update the table from the internet.", MsgBoxStyle.Critical, "Error!")
                 Exit Sub
             End If
 
-            If TGACheckBox.Checked = True Then ProcessTGAFiles()
+            If TGACheckBox.Checked = True Then ProcessTGAFiles(SaveFolderDialog.SelectedPath.ToString)
 
             RepackCIU()
 
-            If TGACheckBox.Checked = True Then ProcessTGAFiles()
+            If TGACheckBox.Checked = True Then ProcessTGAFiles(SaveFolderDialog.SelectedPath.ToString)
 
             If RepackSuccessCIU = True Then MsgBox("Data repacked succesfully", MsgBoxStyle.Information, "Success")
-
-            Else
-                MessageBox.Show("No repack mode is selected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Else
+            MessageBox.Show("No repack mode is selected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information)
         End If
     End Sub
-                                    
+
     Private Sub BrowseArchiveBtn_Click(sender As Object, e As EventArgs) Handles BrowseArchiveBtn.Click
         If OpenArchiveDialog.ShowDialog = DialogResult.OK Then
 
@@ -87,7 +78,7 @@ Public Class Form1
             FolderPathTextBox.SelectionLength = 0
         End If
     End Sub
-                                    
+
     Private Sub SaveFolderBtn_Click(sender As Object, e As EventArgs) Handles SaveFolderBtn.Click
         If SaveFolderDialog.ShowDialog = DialogResult.OK Then
             FolderPathTextBox.Text = SaveFolderDialog.SelectedPath.ToString
@@ -96,7 +87,7 @@ Public Class Form1
             FolderPathTextBox.SelectionLength = 0
         End If
     End Sub
-                                    
+
     Private Sub UpdTableBtn_Click(sender As Object, e As EventArgs) Handles UpdTableBtn.Click
         If MsgBox("This will update the CIU table from the internet." & vbCrLf & vbCrLf & "Continue ?", MsgBoxStyle.YesNo, "Update table") = MsgBoxResult.No Then
             Exit Sub
@@ -135,7 +126,7 @@ Public Class Form1
     Private Sub FolderPathTextBox_TextChanged(sender As Object, e As EventArgs) Handles FolderPathTextBox.TextChanged
         SaveFolderDialog.SelectedPath = FolderPathTextBox.Text.ToString
     End Sub
-                                        
+
     Private Sub UnpackModeCombo_SelectedIndexChanged(sender As Object, e As EventArgs) Handles UnpackModeCombo.SelectedIndexChanged
         If UnpackModeCombo.SelectedIndex = 0 Then
             TGACheckBox.Enabled = False
@@ -148,7 +139,7 @@ Public Class Form1
         Dim url As String = "https://github.com/RavenDS/"
         Process.Start(New ProcessStartInfo(url) With {.UseShellExecute = True})
     End Sub
-                                            
+
     Sub UnpackCI()
         Dim inputFilePath As String = OpenArchiveDialog.FileName.ToString
         Dim outputFolderPath As String = SaveFolderDialog.SelectedPath.ToString
@@ -239,26 +230,21 @@ Public Class Form1
             Exit Sub
         End Try
     End Sub
-                                                        
+
     Sub RepackCI()
         Dim inputFilePath As String = OpenArchiveDialog.FileName.ToString
         Dim outputFolderPath As String = SaveFolderDialog.SelectedPath.ToString
 
         If Not Directory.Exists(outputFolderPath) Then
-            MessageBox.Show("Output folder not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Exit Sub
-        End If
-
-        If Not File.Exists(inputFilePath) Then
-            MessageBox.Show("Input archive file not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("Data Folder not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Exit Sub
         End If
 
         Try
             If File.Exists(inputFilePath) Then
                 For i = 0 To 999
-                    If Not File.Exists(inputFilePath & ".CIExtractBackup" & i) Then
-                        File.Move(inputFilePath, inputFilePath & ".CIExtractBackup" & i)
+                    If Not File.Exists(inputFilePath & i & ".CIExtractBackup") Then
+                        File.Move(inputFilePath, inputFilePath & i & ".CIExtractBackup")
                         Exit For
                     End If
                 Next
@@ -266,7 +252,7 @@ Public Class Form1
 
             Me.Cursor = Cursors.WaitCursor
 
-            Using fs As New FileStream(inputFilePath, FileMode.Open, FileAccess.ReadWrite)
+            Using fs As New FileStream(inputFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite)
                 Using br As New BinaryReader(fs)
                     Using bw As New BinaryWriter(fs)
 
@@ -358,7 +344,7 @@ Public Class Form1
                     End Using
                 End Using
             End Using
-                                                            
+
             Me.Cursor = Cursors.Default
             MessageBox.Show("Repacking complete!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
@@ -367,14 +353,12 @@ Public Class Form1
         End Try
     End Sub
 
-    Sub UnpackCIU()
+    Sub UnpackCIU(inputFilePath As String, outputFolderPath As String)
         'based on work by Luigi Auriemma https://aluigi.altervista.org/bms/chicken_invaders_universe.bms
 
         UnpackSuccessCIU = False
 
-        Dim inputfilePath As String = OpenArchiveDialog.FileName.ToString
         Dim offsetTablePath As String = "offsetTable.txt"
-        Dim outputFolderPath As String = SaveFolderDialog.SelectedPath.ToString
 
         If Not File.Exists(inputfilePath) Then
             MessageBox.Show("Input archive file not found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
@@ -388,7 +372,6 @@ Public Class Form1
         'End If
 
         Try
-
             If File.Exists(offsetTablePath) Then File.Delete(offsetTablePath)
 
             If Not Directory.Exists(outputFolderPath) Then
@@ -514,8 +497,8 @@ Public Class Form1
                 writer.WriteLine(fileName & "," & OFFSET & "," & ZSIZE & "," & SIZE)
             End If
         End Using
-    End Function
 
+    End Function
     Sub RepackCIU()
         RepackSuccessCIU = False
 
@@ -525,7 +508,7 @@ Public Class Form1
 
         If Not File.Exists(tableFilePath) Then
             RepackSuccessCIU = False
-            MsgBox("No OffsetTable.txt ! Unpack the main archive again", MsgBoxStyle.Critical, "Error")
+            MsgBox("No OffsetTable.txt! Unpack the main archive again.", MsgBoxStyle.Critical, "Error")
             Exit Sub
         End If
 
@@ -536,108 +519,91 @@ Public Class Form1
         End If
 
         Try
+            ' Backup original file
             If File.Exists(inputFilePath) Then
                 For i = 0 To 999
-                    If Not File.Exists(inputFilePath & ".CIExtractBackup" & i) Then
-                        File.Move(inputFilePath, inputFilePath & ".CIExtractBackup" & i)
+                    If Not File.Exists(inputFilePath & i & ".CIExtractBackup") Then
+                        File.Move(inputFilePath, inputFilePath & i & ".CIExtractBackup")
                         Exit For
                     End If
                 Next
-                File.Delete(inputFilePath)
             End If
 
             DeNameCIU()
 
-            ' read & analyze offset table
+            ' Read the original offset table
             Dim offsetTable As List(Of String) = File.ReadAllLines(tableFilePath).ToList()
             Dim updatedTable As New List(Of (Filename As Integer, Offset As Integer, Size As Integer))
 
-            Dim currentOffsetAdjustment As Integer = 0
+            Dim cumulativeDelta As Integer = 0
 
             For Each line In offsetTable
-                Dim lineParts = line.Split(","c)
-                Dim filename = Convert.ToInt32(lineParts(0).Trim(), 16) ' filename to hex int32
-                Dim offset = Integer.Parse(lineParts(1).Trim())
-                Dim size = Integer.Parse(lineParts(2).Trim())
+                Dim parts = line.Split(","c)
+                If parts.Length <> 3 Then Continue For
+
+                Dim filename = Convert.ToInt32(parts(0).Trim(), 16)
+                Dim originalOffset = Integer.Parse(parts(1).Trim())
+                Dim originalSize = Integer.Parse(parts(2).Trim())
 
                 Dim filePath = Path.Combine(directoryPath, filename.ToString("X8"))
 
-                If File.Exists(filePath) Then
-                    Dim actualFileSize = CInt(New FileInfo(filePath).Length)
-
-                    If actualFileSize > size Then
-                        ' update size
-                        size = actualFileSize
-
-                        ' update offsets for next lines
-                        Dim sizeDifference = size - Integer.Parse(lineParts(2).Trim())
-                        currentOffsetAdjustment += sizeDifference
-                    ElseIf actualFileSize < size Then
-                        ' update size
-                        size = actualFileSize
-                    End If
-                Else
-                    Console.WriteLine($"Fichier manquant : {filePath}")
+                If Not File.Exists(filePath) Then
+                    Console.WriteLine("Missing file: " & filePath)
                     Continue For
                 End If
 
-                ' add
-                updatedTable.Add((filename, offset + currentOffsetAdjustment, size))
+                Dim actualSize = CInt(New FileInfo(filePath).Length)
+
+                ' If the file size has changed, adjust offset for this and all subsequent files
+                Dim newOffset = originalOffset + cumulativeDelta
+
+                If actualSize <> originalSize Then
+                    cumulativeDelta += (actualSize - originalSize)
+                End If
+
+                updatedTable.Add((filename, newOffset, actualSize))
             Next
 
-            ' write to output.bin
-            Using writer As New BinaryWriter(File.Open(inputFilePath, FileMode.Create, FileAccess.Write))
+            ' Write the archive
+            Using writer As New BinaryWriter(File.Open(inputFilePath, FileMode.OpenOrCreate, FileAccess.Write))
 
-                Dim fileCount As Integer = Directory.GetFiles(directoryPath).Length
-                Dim fileCountBytes As Byte() = BitConverter.GetBytes(fileCount)
-
-                ' header as byte array
+                ' Header: UVE + WAD + 0x04 + file count
                 Dim staticHeader As Byte() = {
-             &H55, &H56, &H45, &H20, ' "UVE " (signature)
-             &H57, &H41, &H44, &H20, ' "WAD " (signature)
-             &H4, &H0, &H0, &H0      ' static
-             }
+                &H55, &H56, &H45, &H20,  ' "UVE "
+                &H57, &H41, &H44, &H20,  ' "WAD "
+                &H4, &H0, &H0, &H0       ' dummy
+            }
+                Dim fileCountBytes As Byte() = BitConverter.GetBytes(updatedTable.Count)
+                writer.Write(staticHeader.Concat(fileCountBytes).ToArray())
 
-                ' combine static & file count
-                Dim header As Byte() = staticHeader.Concat(fileCountBytes).ToArray()
-
-                ' write header to file
-                writer.Write(header)
-
-                ' write updated table
+                ' Write the file entries
                 For Each entry In updatedTable
-
-                    ' reverse bytes of 'filename'
-                    Dim filenameBytes = BitConverter.GetBytes(entry.Filename)
-
-                    writer.Write(filenameBytes)
-
-                    ' write offset & size
+                    writer.Write(BitConverter.GetBytes(entry.Filename))
                     writer.Write(entry.Offset)
                     writer.Write(entry.Size)
-
-                    ' write size (2x same value
-                    writer.Write(entry.Size)
+                    writer.Write(entry.Size) ' duplicate size as per format
                 Next
 
-                ' write files contents
+                ' Write the file contents
                 For Each entry In updatedTable
                     Dim filePath = Path.Combine(directoryPath, entry.Filename.ToString("X8"))
-
                     If File.Exists(filePath) Then
                         Dim fileBytes = File.ReadAllBytes(filePath)
                         writer.Seek(entry.Offset, SeekOrigin.Begin)
                         writer.Write(fileBytes)
                     End If
                 Next
+
             End Using
-                                                                
+
             NameCIU()
             RepackSuccessCIU = True
+
         Catch ex As Exception
             RepackSuccessCIU = False
-            MsgBox("An error occured: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "Error")
+            MsgBox("An error occurred: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "Error")
         End Try
+
     End Sub
 
     Private Sub NameCIU()
@@ -715,11 +681,14 @@ Public Class Form1
         Next
 
         For Each subDir As String In Directory.GetDirectories(sourceFolder)
+
             Directory.Delete(subDir, True)
+
         Next
     End Sub
 
-    Private Sub ProcessTGAFiles()
+    Private Sub ProcessTGAFiles(inputFolder As String)
+
         If SaveFolderDialog.SelectedPath.ToString = "" Then
             Exit Sub
         ElseIf Not Directory.Exists(SaveFolderDialog.SelectedPath.ToString) Then
@@ -727,7 +696,7 @@ Public Class Form1
         End If
 
         Try
-            Dim tgaFiles = Directory.EnumerateFiles(SaveFolderDialog.SelectedPath.ToString, "*.tga", SearchOption.AllDirectories)
+            Dim tgaFiles = Directory.EnumerateFiles(inputFolder, "*.tga", SearchOption.AllDirectories)
 
             ProgressBar1.Value = 0
             ProgressBar1.Maximum = tgaFiles.Count
@@ -877,12 +846,13 @@ Public Class Form1
                    "Aborting.", MsgBoxStyle.Critical, "Error")
             Exit Sub
         End Try
+
     End Sub
 
     Private Function FlipAndSwapImage(imageData(,) As Byte, width As Integer, height As Integer, depth As Integer) As Byte(,)
         Dim bytesPerPixel As Integer = depth \ 8
         Dim flippedImage(height - 1, width * bytesPerPixel - 1) As Byte
-                
+
         Try
             ' flip image vertical
             For y = 0 To height - 1
@@ -926,7 +896,7 @@ Public Class Form1
             Return hash1.SequenceEqual(hash2)
         End Using
     End Function
-    
+
     Private Function ComputeFileHash(filePath As String, hashAlgorithm As HashAlgorithm) As Byte()
         Using stream As FileStream = File.OpenRead(filePath)
             Return hashAlgorithm.ComputeHash(stream)
@@ -976,8 +946,27 @@ Public Class Form1
             Exit Sub
         End Try
     End Sub
+    Sub EncryptFileWithXOR(inputPath As String, outputPath As String, key() As Byte)
+        ' Read all bytes from the input file
+        Dim data() As Byte = File.ReadAllBytes(inputPath)
+
+        ' XOR each byte with the repeating key
+        Dim keyLength As Integer = key.Length
+        For i As Integer = 0 To data.Length - 1
+            data(i) = data(i) Xor key(i Mod keyLength)
+        Next
+
+        ' Write the result to the output file
+        File.WriteAllBytes(outputPath, data)
+    End Sub
 
     Private Sub TGACheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles TGACheckBox.CheckedChanged
-
+        If TGACheckBox.Checked = False Then
+            MsgBox("Disabling TGA processing is not recommended." & vbCrLf & vbCrLf &
+                   "TGA Processing is required to create Mods." & vbCrLf &
+                   "Repacking a CIU archive with partially-processed TGA will break your game.",
+                   MsgBoxStyle.Exclamation, "Caution")
+        End If
     End Sub
+
 End Class
