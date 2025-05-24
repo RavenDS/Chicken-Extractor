@@ -2199,3 +2199,4 @@ ea7fd7f2|gfx/arcade/rotaryGear.tga
 aec2dd15|gfx/arcade/rotaryGear.tga.ini.preload
 6374184c|sfx/rotaryGear_prime.ogg
 e9b9a180|sfx/rotaryGear_activate.ogg
+e59e6d9f|sfx/teleport.ogg
