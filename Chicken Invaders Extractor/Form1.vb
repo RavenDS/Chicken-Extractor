@@ -240,11 +240,17 @@ Public Class Form1
             Exit Sub
         End If
 
+        If Not File.Exists(inputFilePath) Then
+            MessageBox.Show("Archive Not Found!" & vbCrLf &
+                            "Select the original archive.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Exit Sub
+        End If
+
         Try
             If File.Exists(inputFilePath) Then
                 For i = 0 To 999
                     If Not File.Exists(inputFilePath & i & ".CIExtractBackup") Then
-                        File.Move(inputFilePath, inputFilePath & i & ".CIExtractBackup")
+                        File.Copy(inputFilePath, inputFilePath & i & ".CIExtractBackup")
                         Exit For
                     End If
                 Next
@@ -252,7 +258,7 @@ Public Class Form1
 
             Me.Cursor = Cursors.WaitCursor
 
-            Using fs As New FileStream(inputFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite)
+            Using fs As New FileStream(inputFilePath, FileMode.Open, FileAccess.ReadWrite)
                 Using br As New BinaryReader(fs)
                     Using bw As New BinaryWriter(fs)
 
@@ -317,6 +323,8 @@ Public Class Form1
                                         ' write new data at end of file
                                         fs.Seek(newOffset, SeekOrigin.Begin)
                                         fs.Write(newFileBytes, 0, newSize)
+
+
                                     Else
                                         ' rewrite data in place if size < or =
                                         fs.Seek(fileOffset, SeekOrigin.Begin)
@@ -499,6 +507,7 @@ Public Class Form1
         End Using
 
     End Function
+
     Sub RepackCIU()
         RepackSuccessCIU = False
 
@@ -945,19 +954,6 @@ Public Class Form1
             MsgBox("Error: " & vbCrLf & ex.Message, MsgBoxStyle.Critical, "Error")
             Exit Sub
         End Try
-    End Sub
-    Sub EncryptFileWithXOR(inputPath As String, outputPath As String, key() As Byte)
-        ' Read all bytes from the input file
-        Dim data() As Byte = File.ReadAllBytes(inputPath)
-
-        ' XOR each byte with the repeating key
-        Dim keyLength As Integer = key.Length
-        For i As Integer = 0 To data.Length - 1
-            data(i) = data(i) Xor key(i Mod keyLength)
-        Next
-
-        ' Write the result to the output file
-        File.WriteAllBytes(outputPath, data)
     End Sub
 
     Private Sub TGACheckBox_CheckedChanged(sender As Object, e As EventArgs) Handles TGACheckBox.CheckedChanged
